@@ -1,0 +1,23 @@
+bin/
+gen/
+out/
+run/
+*.class
+
+# Eclipse
+/.settings/
+/.classpath/
+/.project/
+
+# IntelliJ
+/.idea/*
+!/.idea/codeStyles/
+!/.idea/copyright/
+*.iml
+*.ipr
+*.iws
+
+# Gradle
+.gradle/
+target/
+build/

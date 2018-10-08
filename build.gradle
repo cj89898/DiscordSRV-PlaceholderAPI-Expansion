@@ -1,0 +1,21 @@
+apply plugin: 'java'
+
+group 'github.vankka.dsrvpapi'
+version '1.0-UNOFFICAL'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven { url "https://hub.spigotmc.org/nexus/content/repositories/snapshots/" }
+    maven { url "http://repo.extendedclip.com/content/repositories/placeholderapi/" }
+    maven { url "http://repo.extendedclip.com/content/repositories/public/" }
+    maven { url "https://ci.scarsz.me/plugin/repository/everything/" }
+}
+
+dependencies {
+    compile "org.bukkit:bukkit:1.13-R0.1-SNAPSHOT"
+    compile "me.clip:placeholderapi:2.9.1"
+    compile "github.scarsz.discordsrv:DiscordSRV:1.16.4"
+}
