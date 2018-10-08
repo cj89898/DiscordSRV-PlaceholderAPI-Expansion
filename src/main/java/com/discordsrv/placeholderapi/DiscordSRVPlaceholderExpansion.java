@@ -1,4 +1,4 @@
-package github.vankka.dsrvpapi;
+package com.discordsrv.placeholderapi;
 
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.dependencies.jda.core.entities.*;
@@ -6,22 +6,22 @@ import java.util.function.Function;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 
-public class DSRVPAPI extends PlaceholderExpansion {
-    private static final String dsrv = "DiscordSRV";
+public class DiscordSRVPlaceholderExpansion extends PlaceholderExpansion {
+    private static final String discordSRV = "DiscordSRV";
 
     @Override
     public String getName() {
-        return dsrv + " UNOFFICAL";
+        return discordSRV;
     }
 
     @Override
     public String getRequiredPlugin() {
-        return dsrv;
+        return discordSRV;
     }
 
     @Override
     public String getIdentifier() {
-        return dsrv.toLowerCase();
+        return discordSRV.toLowerCase();
     }
 
     @Override

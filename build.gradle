@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
-group 'github.vankka.dsrvpapi'
-version '1.0-UNOFFICAL'
+group 'com.discordsrv.placeholderapi'
+version '1.0'
 
 sourceCompatibility = 1.8
 
