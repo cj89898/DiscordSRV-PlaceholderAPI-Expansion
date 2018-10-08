@@ -5,4 +5,4 @@
 Installation:  
 1. Get the expansion from [Releases](https://github.com/DiscordSRV/DiscordSRV-PlaceholderAPI-Expansion/releases)  
 2. Place it into `plugins/PlaceholderAPI/expansions`  
-3. Restart your server (i guess, idk i don't use placeholderapi)  
+3. Restart your server
