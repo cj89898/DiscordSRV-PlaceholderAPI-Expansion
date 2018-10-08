@@ -6,7 +6,7 @@ import java.util.function.Function;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 
-public class DiscordSRVPlaceholderExpansion extends PlaceholderExpansion {
+public class DSRVExpansion extends PlaceholderExpansion {
     private static final String discordSRV = "DiscordSRV";
 
     @Override
