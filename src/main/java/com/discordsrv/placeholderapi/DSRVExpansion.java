@@ -1,13 +1,22 @@
 package com.discordsrv.placeholderapi;
 
 import github.scarsz.discordsrv.DiscordSRV;
+import github.scarsz.discordsrv.dependencies.jda.core.OnlineStatus;
 import github.scarsz.discordsrv.dependencies.jda.core.entities.*;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 
 public class DSRVExpansion extends PlaceholderExpansion {
     private static final String discordSRV = "DiscordSRV";
+
+    @Override
+    public boolean persist() {
+        return true;
+    }
 
     @Override
     public String getName() {
@@ -41,6 +50,16 @@ public class DSRVExpansion extends PlaceholderExpansion {
 
         Guild mainGuild = DiscordSRV.getPlugin().getMainGuild();
 
+        if (mainGuild == null)
+            return "";
+
+        List<String> membersOnline = mainGuild.getMembers()
+                                              .stream()
+                                              .filter(member -> member.getOnlineStatus() != OnlineStatus.OFFLINE)
+                                              .map(member -> member.getUser().getId())
+                                              .collect(Collectors.toList());
+        Set<String> linkedAccounts = DiscordSRV.getPlugin().getAccountLinkManager().getLinkedAccounts().keySet();
+
         switch (identifier) {
             case "guild_id":
                 return mainGuild.getId();
@@ -70,18 +89,26 @@ public class DSRVExpansion extends PlaceholderExpansion {
                 return getOrEmptyString(mainGuild.getSelfMember().getGame(), Game::getName);
             case "guild_bot_game_url":
                 return getOrEmptyString(mainGuild.getSelfMember().getGame(), Game::getUrl);
+            case "guild_members_online":
+                return String.valueOf(membersOnline.size());
+            case "guild_members_total":
+                return String.valueOf(mainGuild.getMembers().size());
+            case "linked_online":
+                return String.valueOf(linkedAccounts.stream().filter(membersOnline::contains).count());
+            case "linked_total":
+                return String.valueOf(linkedAccounts.size());
         }
 
         if (player == null)
-            return null;
+            return "";
 
         String userId = DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(player.getUniqueId());
 
         if (identifier.equals("user_id"))
-            return userId;
+            return orEmptyString(userId);
 
         if (userId == null)
-            return null;
+            return "";
 
         User user = DiscordSRV.getPlugin().getJda().getUserById(userId);
 
@@ -91,7 +118,7 @@ public class DSRVExpansion extends PlaceholderExpansion {
         Member member = mainGuild.getMember(user);
 
         if (member == null)
-            return null;
+            return "";
 
         switch (identifier) {
             case "user_effective_name":
@@ -107,7 +134,7 @@ public class DSRVExpansion extends PlaceholderExpansion {
         }
 
         if (member.getRoles().size() < 1)
-            return null;
+            return "";
 
         Role topRole = member.getRoles().get(0);
 
