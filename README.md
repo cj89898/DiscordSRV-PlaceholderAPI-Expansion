@@ -8,5 +8,6 @@ Installation (Manual):
 2. Place it into `plugins/PlaceholderAPI/expansions`  
 3. Restart your server
 ---
-Installation (ecloud):  
-1. /papi ecloud download DiscordSRV
+Installation ([ecloud](https://api.extendedclip.com/expansions/discordsrv/)):  
+1. `/papi ecloud download DiscordSRV`
+2. `/papi reload`
