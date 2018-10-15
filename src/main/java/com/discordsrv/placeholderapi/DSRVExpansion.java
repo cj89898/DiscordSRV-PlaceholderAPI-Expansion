@@ -112,8 +112,12 @@ public class DSRVExpansion extends PlaceholderExpansion {
 
         User user = DiscordSRV.getPlugin().getJda().getUserById(userId);
 
-        if (identifier.equals("user_name"))
-            return user.getName();
+        switch (identifier) {
+            case "user_name":
+                return user.getName();
+            case "user_islinked":
+                return String.valueOf(DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(player.getUniqueId()) != null);
+        }
 
         Member member = mainGuild.getMember(user);
 
