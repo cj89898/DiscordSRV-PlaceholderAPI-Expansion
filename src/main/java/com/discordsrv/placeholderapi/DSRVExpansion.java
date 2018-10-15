@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 
@@ -116,7 +117,7 @@ public class DSRVExpansion extends PlaceholderExpansion {
             case "user_name":
                 return user.getName();
             case "user_islinked":
-                return String.valueOf(DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(player.getUniqueId()) != null);
+                return getBoolean(DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(player.getUniqueId()) != null);
         }
 
         Member member = mainGuild.getMember(user);
@@ -165,5 +166,9 @@ public class DSRVExpansion extends PlaceholderExpansion {
         if (input == null)
             return "";
         return input;
+    }
+
+    private String getBoolean(boolean input) {
+        return input ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
     }
 }
