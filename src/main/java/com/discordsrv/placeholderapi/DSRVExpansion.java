@@ -41,7 +41,7 @@ public class DSRVExpansion extends PlaceholderExpansion {
 
     @Override
     public String getVersion() {
-        return getClass().getPackage().getImplementationVersion();
+        return "1.2";
     }
 
     @Override
