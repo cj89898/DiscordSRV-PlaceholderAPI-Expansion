@@ -3,14 +3,19 @@ package com.discordsrv.placeholderapi;
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.dependencies.jda.core.OnlineStatus;
 import github.scarsz.discordsrv.dependencies.jda.core.entities.*;
+
+import java.awt.*;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import github.scarsz.discordsrv.util.DiscordUtil;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 
+@SuppressWarnings("unused")
 public class DSRVExpansion extends PlaceholderExpansion {
     private static final String discordSRV = "DiscordSRV";
 
@@ -54,11 +59,10 @@ public class DSRVExpansion extends PlaceholderExpansion {
         if (mainGuild == null)
             return "";
 
-        List<String> membersOnline = mainGuild.getMembers()
-                                              .stream()
-                                              .filter(member -> member.getOnlineStatus() != OnlineStatus.OFFLINE)
-                                              .map(member -> member.getUser().getId())
-                                              .collect(Collectors.toList());
+        List<String> membersOnline = mainGuild.getMembers().stream()
+                .filter(member -> member.getOnlineStatus() != OnlineStatus.OFFLINE)
+                .map(member -> member.getUser().getId())
+                .collect(Collectors.toList());
         Set<String> linkedAccounts = DiscordSRV.getPlugin().getAccountLinkManager().getLinkedAccounts().keySet();
 
         switch (identifier) {
@@ -138,10 +142,14 @@ public class DSRVExpansion extends PlaceholderExpansion {
                 return getOrEmptyString(member.getGame(), Game::getUrl);
         }
 
-        if (member.getRoles().size() < 1)
+        if (member.getRoles().isEmpty())
             return "";
 
-        Role topRole = member.getRoles().get(0);
+        List<Role> selectedRoles = getRoles(member);
+        if (selectedRoles.isEmpty())
+            return "";
+
+        Role topRole = selectedRoles.get(0);
 
         switch (identifier) {
             case "user_top_role_id":
@@ -149,10 +157,39 @@ public class DSRVExpansion extends PlaceholderExpansion {
             case "user_top_role_name":
                 return topRole.getName();
             case "user_top_role_color":
-                return topRole.getColor().toString();
+                return getHex(topRole.getColor());
         }
 
         return null;
+    }
+
+    /**
+     * Get roles from a member, filtered based on
+     * Source: https://github.com/DiscordSRV/DiscordSRV/blob/6b8de4afb3bfecf9c63275d381c75b103e5543f3/src/main/java/github/scarsz/discordsrv/listeners/DiscordChatListener.java#L110-L122
+     *
+     * @param member The member to get the roles from
+     * @return filtered list of roles
+     */
+    private List<Role> getRoles(Member member) {
+        List<Role> selectedRoles;
+        List<String> discordRolesSelection = DiscordSRV.config().getStringList("DiscordChatChannelRolesSelection");
+        // if we have a whitelist in the config
+        if (DiscordSRV.config().getBoolean("DiscordChatChannelRolesSelectionAsWhitelist")) {
+            selectedRoles = member.getRoles().stream()
+                    .filter(role -> discordRolesSelection.contains(DiscordUtil.getRoleName(role)))
+                    .collect(Collectors.toList());
+        } else { // if we have a blacklist in the settings
+            selectedRoles = member.getRoles().stream()
+                    .filter(role -> !discordRolesSelection.contains(DiscordUtil.getRoleName(role)))
+                    .collect(Collectors.toList());
+        }
+        selectedRoles.removeIf(role -> role.getName().length() < 1);
+
+        return selectedRoles;
+    }
+
+    private String getHex(Color color) {
+        return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
     }
 
     private <T> String getOrEmptyString(T input, Function<T, String> function) {
