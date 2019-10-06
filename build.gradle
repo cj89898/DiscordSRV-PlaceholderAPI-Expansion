@@ -14,10 +14,10 @@ repositories {
 
     // Spigot
     maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-    
+
     // PlaceholderAPI
     maven { url 'http://repo.extendedclip.com/content/repositories/placeholderapi/' }
-    
+
     // DiscordSRV
     maven { url 'https://nexus.scarsz.me/content/repositories/releases/' }
 }
