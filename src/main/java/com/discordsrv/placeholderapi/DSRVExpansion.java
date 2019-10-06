@@ -140,6 +140,8 @@ public class DSRVExpansion extends PlaceholderExpansion {
                 return getOrEmptyString(member.getGame(), Game::getName);
             case "user_game_url":
                 return getOrEmptyString(member.getGame(), Game::getUrl);
+            case "user_formatted":
+                return member.getUser().getName() + "#" + member.getUser().getDiscriminator();
         }
 
         if (member.getRoles().isEmpty())
