@@ -122,6 +122,8 @@ public class DSRVExpansion extends PlaceholderExpansion {
                 return user.getName();
             case "user_islinked":
                 return getBoolean(DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(player.getUniqueId()) != null);
+            case "user_tag":
+                return user.getAsTag();
         }
 
         Member member = mainGuild.getMember(user);
