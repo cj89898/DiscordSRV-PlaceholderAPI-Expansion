@@ -1,8 +1,8 @@
 package com.discordsrv.placeholderapi;
 
 import github.scarsz.discordsrv.DiscordSRV;
-import github.scarsz.discordsrv.dependencies.jda.core.OnlineStatus;
-import github.scarsz.discordsrv.dependencies.jda.core.entities.*;
+import github.scarsz.discordsrv.dependencies.jda.api.OnlineStatus;
+import github.scarsz.discordsrv.dependencies.jda.api.entities.*;
 
 import java.awt.*;
 import java.util.List;
@@ -79,21 +79,21 @@ public class DSRVExpansion extends PlaceholderExpansion {
             case "guild_splash_url":
                 return orEmptyString(mainGuild.getSplashUrl());
             case "guild_owner_effective_name":
-                return mainGuild.getOwner().getEffectiveName();
+                return getOrEmptyString(mainGuild.getOwner(), Member::getEffectiveName);
             case "guild_owner_nickname":
-                return mainGuild.getOwner().getNickname();
+                return getOrEmptyString(mainGuild.getOwner(), Member::getNickname);
             case "guild_owner_game_name":
-                return getOrEmptyString(mainGuild.getOwner().getGame(), Game::getName);
+                return getOrEmptyString(mainGuild.getOwner(), member -> member.getActivities().stream().findFirst().map(Activity::getName).orElse(""));
             case "guild_owner_game_url":
-                return getOrEmptyString(mainGuild.getOwner().getGame(), Game::getUrl);
+                return getOrEmptyString(mainGuild.getOwner(), member -> member.getActivities().stream().findFirst().map(Activity::getUrl).orElse(""));
             case "guild_bot_effective_name":
                 return mainGuild.getSelfMember().getEffectiveName();
             case "guild_bot_nickname":
                 return orEmptyString(mainGuild.getSelfMember().getNickname());
             case "guild_bot_game_name":
-                return getOrEmptyString(mainGuild.getSelfMember().getGame(), Game::getName);
+                return getOrEmptyString(mainGuild.getSelfMember(), member -> member.getActivities().stream().findFirst().map(Activity::getName).orElse(""));
             case "guild_bot_game_url":
-                return getOrEmptyString(mainGuild.getSelfMember().getGame(), Game::getUrl);
+                return getOrEmptyString(mainGuild.getSelfMember(), member -> member.getActivities().stream().findFirst().map(Activity::getUrl).orElse(""));
             case "guild_members_online":
                 return String.valueOf(membersOnline.size());
             case "guild_members_total":
@@ -108,14 +108,18 @@ public class DSRVExpansion extends PlaceholderExpansion {
             return "";
 
         String userId = DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(player.getUniqueId());
-
-        if (identifier.equals("user_id"))
+        if (identifier.equals("user_id")) {
             return orEmptyString(userId);
+        }
 
-        if (userId == null)
+        if (userId == null) {
             return "";
+        }
 
         User user = DiscordSRV.getPlugin().getJda().getUserById(userId);
+        if (user == null) {
+            return "";
+        }
 
         switch (identifier) {
             case "user_name":
@@ -127,9 +131,9 @@ public class DSRVExpansion extends PlaceholderExpansion {
         }
 
         Member member = mainGuild.getMember(user);
-
-        if (member == null)
+        if (member == null) {
             return "";
+        }
 
         switch (identifier) {
             case "user_effective_name":
@@ -139,17 +143,19 @@ public class DSRVExpansion extends PlaceholderExpansion {
             case "user_online_status":
                 return member.getOnlineStatus().getKey();
             case "user_game_name":
-                return getOrEmptyString(member.getGame(), Game::getName);
+                return member.getActivities().stream().findFirst().map(Activity::getName).orElse("");
             case "user_game_url":
-                return getOrEmptyString(member.getGame(), Game::getUrl);
+                return member.getActivities().stream().findFirst().map(Activity::getUrl).orElse("");
         }
 
-        if (member.getRoles().isEmpty())
+        if (member.getRoles().isEmpty()) {
             return "";
+        }
 
         List<Role> selectedRoles = getRoles(member);
-        if (selectedRoles.isEmpty())
+        if (selectedRoles.isEmpty()) {
             return "";
+        }
 
         Role topRole = selectedRoles.get(0);
 
@@ -159,7 +165,7 @@ public class DSRVExpansion extends PlaceholderExpansion {
             case "user_top_role_name":
                 return topRole.getName();
             case "user_top_role_color":
-                return getHex(topRole.getColor());
+                return getOrEmptyString(topRole.getColor(), this::getHex);
         }
 
         return null;
