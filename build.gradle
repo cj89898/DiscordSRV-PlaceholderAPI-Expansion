@@ -19,7 +19,7 @@ repositories {
     maven { url 'http://repo.extendedclip.com/content/repositories/placeholderapi/' }
 
     // DiscordSRV
-    maven { url 'https://nexus.scarsz.me/content/repositories/releases/' }
+    maven { url 'https://nexus.scarsz.me/content/repositories/public/' }
 }
 
 dependencies {
