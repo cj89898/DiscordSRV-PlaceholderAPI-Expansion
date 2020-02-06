@@ -1,18 +1,20 @@
 package com.discordsrv.placeholderapi;
 
 import github.scarsz.discordsrv.DiscordSRV;
+import github.scarsz.discordsrv.dependencies.google.common.collect.ImmutableMap;
 import github.scarsz.discordsrv.dependencies.jda.api.OnlineStatus;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.*;
 
 import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import github.scarsz.discordsrv.util.DiscordUtil;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 @SuppressWarnings("unused")
@@ -164,8 +166,10 @@ public class DSRVExpansion extends PlaceholderExpansion {
                 return topRole.getId();
             case "user_top_role_name":
                 return topRole.getName();
-            case "user_top_role_color":
+            case "user_top_role_color_hex":
                 return getOrEmptyString(topRole.getColor(), this::getHex);
+            case "user_top_role_color_code":
+                return getRoleColor(topRole);
         }
 
         return null;
@@ -194,6 +198,73 @@ public class DSRVExpansion extends PlaceholderExpansion {
         selectedRoles.removeIf(role -> role.getName().length() < 1);
 
         return selectedRoles;
+    }
+
+    /**
+     * Default Discord {@link Color}.
+     * Clone of https://github.com/DiscordSRV/DiscordSRV/blob/5111959c0ccdd6dc454011de0c4936be764f388f/src/main/java/github/scarsz/discordsrv/util/DiscordUtil.java#L509
+     */
+    private static final Color discordDefaultColor = new Color(153, 170, 181, 1);
+
+    /**
+     * Map of {@link java.awt.Color}s and {@link ChatColor}s.
+     * Clone of https://github.com/DiscordSRV/DiscordSRV/blob/5111959c0ccdd6dc454011de0c4936be764f388f/src/main/java/github/scarsz/discordsrv/util/DiscordUtil.java#L510-L527
+     */
+    private static final Map<Color, ChatColor> minecraftColors = ImmutableMap.copyOf(new HashMap<Color, ChatColor>() {{
+        put(new Color(0, 0, 0), ChatColor.BLACK);
+        put(new Color(0, 0, 170), ChatColor.DARK_BLUE);
+        put(new Color(0, 170, 0), ChatColor.DARK_GREEN);
+        put(new Color(0, 170, 170), ChatColor.DARK_AQUA);
+        put(new Color(170, 0, 0), ChatColor.DARK_RED);
+        put(new Color(170, 0, 170), ChatColor.DARK_PURPLE);
+        put(new Color(255, 170, 0), ChatColor.GOLD);
+        put(new Color(170, 170, 170), ChatColor.GRAY);
+        put(new Color(85, 85, 85), ChatColor.DARK_GRAY);
+        put(new Color(85, 85, 255), ChatColor.BLUE);
+        put(new Color(85, 255, 85), ChatColor.GREEN);
+        put(new Color(85, 255, 255), ChatColor.AQUA);
+        put(new Color(255, 85, 85), ChatColor.RED);
+        put(new Color(255, 85, 255), ChatColor.LIGHT_PURPLE);
+        put(new Color(255, 255, 85), ChatColor.YELLOW);
+        put(new Color(255, 255, 255), ChatColor.WHITE);
+    }});
+
+    /**
+     * Helper method.
+     * Clone of https://github.com/DiscordSRV/DiscordSRV/blob/5111959c0ccdd6dc454011de0c4936be764f388f/src/main/java/github/scarsz/discordsrv/util/DiscordUtil.java#L529-L533
+     */
+    private static int colorDistance(Color color1, Color color2) {
+        return (int) Math.sqrt((color1.getRed() - color2.getRed()) * (color1.getRed() - color2.getRed())
+                + (color1.getGreen() - color2.getGreen()) * (color1.getGreen() - color2.getGreen())
+                + (color1.getBlue() - color2.getBlue()) * (color1.getBlue() - color2.getBlue()));
+    }
+
+    /**
+     * Gets the role color (code) string for a role.
+     *
+     * @param role the role.
+     * @return the color (code) string
+     */
+    private String getRoleColor(Role role) {
+        Color color = role.getColor() != null ? role.getColor() : discordDefaultColor;
+        String hex = Integer.toHexString(color.getRGB()).toUpperCase();
+        if (hex.length() == 8) hex = hex.substring(2);
+        String translatedColor = DiscordSRV.getPlugin().getColors().get(hex);
+
+        if (translatedColor == null) {
+            if (DiscordSRV.config().getBooleanElse("Experiment_Automatic_Color_Translations", false)) {
+                ChatColor determinedColor = minecraftColors.entrySet().stream()
+                        .min(Comparator.comparingInt(entry -> colorDistance(color, entry.getKey())))
+                        .map(Map.Entry::getValue)
+                        .orElseThrow(() -> new RuntimeException("This should not be possible:tm:"));
+
+                translatedColor = determinedColor.toString();
+            } else {
+                translatedColor = "";
+            }
+        }
+
+        return translatedColor;
     }
 
     private String getHex(Color color) {
