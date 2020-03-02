@@ -17,8 +17,14 @@
 %discordsrv_guild_bot_nickname%
 %discordsrv_guild_bot_game_name%
 %discordsrv_guild_bot_game_url%
+%discordsrv_guild_members_online%
+%discordsrv_guild_members_total%
+%discordsrv_linked_online%
+%discordsrv_linked_total%
 %discordsrv_user_id%
 %discordsrv_user_name%
+%discordsrv_user_islinked%
+%discordsrv_user_tag%
 %discordsrv_user_effective_name%
 %discordsrv_user_nickname% 
 %discordsrv_user_online_status%
@@ -28,10 +34,6 @@
 %discordsrv_user_top_role_name%
 %discordsrv_user_top_role_color_hex%
 %discordsrv_user_top_role_color_code%
-%discordsrv_guild_members_online%
-%discordsrv_guild_members_total%
-%discordsrv_linked_online%
-%discordsrv_linked_total%
 ```
 
 ### Installation
