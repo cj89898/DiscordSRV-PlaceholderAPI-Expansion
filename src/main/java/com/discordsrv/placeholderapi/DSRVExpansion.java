@@ -9,6 +9,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import github.scarsz.discordsrv.util.DiscordUtil;
@@ -56,54 +57,54 @@ public class DSRVExpansion extends PlaceholderExpansion {
         if (!DiscordSRV.isReady)
             return null;
 
-        Guild mainGuild = DiscordSRV.getPlugin().getMainGuild();
+        Supplier<Guild> mainGuild = () -> DiscordSRV.getPlugin().getMainGuild();
 
         if (mainGuild == null)
             return "";
 
-        List<String> membersOnline = mainGuild.getMembers().stream()
+        Supplier<List<String>> membersOnline = () -> mainGuild.get().getMembers().stream()
                 .filter(member -> member.getOnlineStatus() != OnlineStatus.OFFLINE)
                 .map(member -> member.getUser().getId())
                 .collect(Collectors.toList());
-        Set<String> linkedAccounts = DiscordSRV.getPlugin().getAccountLinkManager().getLinkedAccounts().keySet();
+        Supplier<Set<String>> linkedAccounts = () -> DiscordSRV.getPlugin().getAccountLinkManager().getLinkedAccounts().keySet();
 
         switch (identifier) {
             case "guild_id":
-                return mainGuild.getId();
+                return mainGuild.get().getId();
             case "guild_name":
-                return mainGuild.getName();
+                return mainGuild.get().getName();
             case "guild_icon_id":
-                return orEmptyString(mainGuild.getIconId());
+                return orEmptyString(mainGuild.get().getIconId());
             case "guild_icon_url":
-                return orEmptyString(mainGuild.getIconUrl());
+                return orEmptyString(mainGuild.get().getIconUrl());
             case "guild_splash_id":
-                return orEmptyString(mainGuild.getSplashId());
+                return orEmptyString(mainGuild.get().getSplashId());
             case "guild_splash_url":
-                return orEmptyString(mainGuild.getSplashUrl());
+                return orEmptyString(mainGuild.get().getSplashUrl());
             case "guild_owner_effective_name":
-                return getOrEmptyString(mainGuild.getOwner(), Member::getEffectiveName);
+                return getOrEmptyString(mainGuild.get().getOwner(), Member::getEffectiveName);
             case "guild_owner_nickname":
-                return getOrEmptyString(mainGuild.getOwner(), Member::getNickname);
+                return getOrEmptyString(mainGuild.get().getOwner(), Member::getNickname);
             case "guild_owner_game_name":
-                return getOrEmptyString(mainGuild.getOwner(), member -> member.getActivities().stream().findFirst().map(Activity::getName).orElse(""));
+                return getOrEmptyString(mainGuild.get().getOwner(), member -> member.getActivities().stream().findFirst().map(Activity::getName).orElse(""));
             case "guild_owner_game_url":
-                return getOrEmptyString(mainGuild.getOwner(), member -> member.getActivities().stream().findFirst().map(Activity::getUrl).orElse(""));
+                return getOrEmptyString(mainGuild.get().getOwner(), member -> member.getActivities().stream().findFirst().map(Activity::getUrl).orElse(""));
             case "guild_bot_effective_name":
-                return mainGuild.getSelfMember().getEffectiveName();
+                return mainGuild.get().getSelfMember().getEffectiveName();
             case "guild_bot_nickname":
-                return orEmptyString(mainGuild.getSelfMember().getNickname());
+                return orEmptyString(mainGuild.get().getSelfMember().getNickname());
             case "guild_bot_game_name":
-                return getOrEmptyString(mainGuild.getSelfMember(), member -> member.getActivities().stream().findFirst().map(Activity::getName).orElse(""));
+                return getOrEmptyString(mainGuild.get().getSelfMember(), member -> member.getActivities().stream().findFirst().map(Activity::getName).orElse(""));
             case "guild_bot_game_url":
-                return getOrEmptyString(mainGuild.getSelfMember(), member -> member.getActivities().stream().findFirst().map(Activity::getUrl).orElse(""));
+                return getOrEmptyString(mainGuild.get().getSelfMember(), member -> member.getActivities().stream().findFirst().map(Activity::getUrl).orElse(""));
             case "guild_members_online":
-                return String.valueOf(membersOnline.size());
+                return String.valueOf(membersOnline.get().size());
             case "guild_members_total":
-                return String.valueOf(mainGuild.getMembers().size());
+                return String.valueOf(mainGuild.get().getMembers().size());
             case "linked_online":
-                return String.valueOf(linkedAccounts.stream().filter(membersOnline::contains).count());
+                return String.valueOf(linkedAccounts.get().stream().filter(membersOnline.get()::contains).count());
             case "linked_total":
-                return String.valueOf(linkedAccounts.size());
+                return String.valueOf(linkedAccounts.get().size());
         }
 
         if (player == null)
@@ -132,29 +133,29 @@ public class DSRVExpansion extends PlaceholderExpansion {
                 return user.getAsTag();
         }
 
-        Member member = mainGuild.getMember(user);
+        Supplier<Member> member = () -> mainGuild.get().getMember(user);
         if (member == null) {
             return "";
         }
 
         switch (identifier) {
             case "user_effective_name":
-                return member.getEffectiveName();
+                return member.get().getEffectiveName();
             case "user_nickname":
-                return orEmptyString(member.getNickname());
+                return orEmptyString(member.get().getNickname());
             case "user_online_status":
-                return member.getOnlineStatus().getKey();
+                return member.get().getOnlineStatus().getKey();
             case "user_game_name":
-                return member.getActivities().stream().findFirst().map(Activity::getName).orElse("");
+                return member.get().getActivities().stream().findFirst().map(Activity::getName).orElse("");
             case "user_game_url":
-                return member.getActivities().stream().findFirst().map(Activity::getUrl).orElse("");
+                return member.get().getActivities().stream().findFirst().map(Activity::getUrl).orElse("");
         }
 
-        if (member.getRoles().isEmpty()) {
+        if (member.get().getRoles().isEmpty()) {
             return "";
         }
 
-        List<Role> selectedRoles = getRoles(member);
+        List<Role> selectedRoles = getRoles(member.get());
         if (selectedRoles.isEmpty()) {
             return "";
         }
