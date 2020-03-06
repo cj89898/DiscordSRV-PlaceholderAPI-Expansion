@@ -102,7 +102,8 @@ public class DSRVExpansion extends PlaceholderExpansion {
             case "guild_members_total":
                 return String.valueOf(mainGuild.getMembers().size());
             case "linked_online":
-                return String.valueOf(linkedAccounts.get().stream().filter(membersOnline.get()::contains).count());
+                List<String> onlineMembers = membersOnline.get();
+                return String.valueOf(linkedAccounts.get().stream().filter(onlineMembers::contains).count());
             case "linked_total":
                 return String.valueOf(linkedAccounts.get().size());
         }
