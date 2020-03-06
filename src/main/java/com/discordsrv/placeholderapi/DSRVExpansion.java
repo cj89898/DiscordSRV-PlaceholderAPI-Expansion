@@ -9,6 +9,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import github.scarsz.discordsrv.util.DiscordUtil;
@@ -61,11 +62,11 @@ public class DSRVExpansion extends PlaceholderExpansion {
         if (mainGuild == null)
             return "";
 
-        List<String> membersOnline = mainGuild.getMembers().stream()
+        Supplier<List<String>> membersOnline = () -> mainGuild.getMembers().stream()
                 .filter(member -> member.getOnlineStatus() != OnlineStatus.OFFLINE)
                 .map(member -> member.getUser().getId())
                 .collect(Collectors.toList());
-        Set<String> linkedAccounts = DiscordSRV.getPlugin().getAccountLinkManager().getLinkedAccounts().keySet();
+        Supplier<Set<String>> linkedAccounts = () -> DiscordSRV.getPlugin().getAccountLinkManager().getLinkedAccounts().keySet();
 
         switch (identifier) {
             case "guild_id":
@@ -97,13 +98,14 @@ public class DSRVExpansion extends PlaceholderExpansion {
             case "guild_bot_game_url":
                 return getOrEmptyString(mainGuild.getSelfMember(), member -> member.getActivities().stream().findFirst().map(Activity::getUrl).orElse(""));
             case "guild_members_online":
-                return String.valueOf(membersOnline.size());
+                return String.valueOf(membersOnline.get().size());
             case "guild_members_total":
                 return String.valueOf(mainGuild.getMembers().size());
             case "linked_online":
-                return String.valueOf(linkedAccounts.stream().filter(membersOnline::contains).count());
+                List<String> onlineMembers = membersOnline.get();
+                return String.valueOf(linkedAccounts.get().stream().filter(onlineMembers::contains).count());
             case "linked_total":
-                return String.valueOf(linkedAccounts.size());
+                return String.valueOf(linkedAccounts.get().size());
         }
 
         if (player == null)
@@ -127,7 +129,7 @@ public class DSRVExpansion extends PlaceholderExpansion {
             case "user_name":
                 return user.getName();
             case "user_islinked":
-                return getBoolean(DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(player.getUniqueId()) != null);
+                return getBoolean(userId != null);
             case "user_tag":
                 return user.getAsTag();
         }
